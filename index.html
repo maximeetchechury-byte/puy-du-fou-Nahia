@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La Quête Secrète</title>
+<style>
+:root{--bg:#0d0b14;--card:#1a1526;--gold:#e8b84a;--txt:#f4efe6;--mut:#9a92ad;--ok:#5fd38d;--ko:#ff6b6b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 50% 0,#2a1d4a,var(--bg) 60%);color:var(--txt);font-family:Georgia,'Times New Roman',serif;min-height:100vh;display:flex;justify-content:center}
+main{width:100%;max-width:480px;padding:24px 18px 40px}
+h1{font-size:2rem;text-align:center;color:var(--gold);margin:8px 0;letter-spacing:.04em}
+p{line-height:1.5}
+.sub{text-align:center;color:var(--mut)}
+.card{background:var(--card);border:1px solid #3b2f5c;border-radius:18px;padding:22px;margin-top:22px;box-shadow:0 10px 40px #0008;animation:up .5s}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+button,input{font:inherit;width:100%;border-radius:12px;padding:14px;margin-top:10px;border:1px solid #4a3d70;background:#241c38;color:var(--txt);text-align:left}
+button{cursor:pointer;transition:.2s}
+button:hover{border-color:var(--gold);transform:translateX(3px)}
+button.main{background:var(--gold);color:#1a1200;text-align:center;font-weight:bold;border:0}
+button.ok{background:#173a28;border-color:var(--ok)}
+button.ko{background:#3d1c22;border-color:var(--ko)}
+.bar{display:flex;gap:8px;justify-content:center;margin-top:18px}
+.slot{width:46px;height:56px;border:2px dashed #4a3d70;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;color:var(--gold)}
+.slot.on{border:2px solid var(--gold);background:#2c2140;animation:pop .5s}
+@keyframes pop{0%{transform:scale(.5) rotate(-10deg)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.msg{min-height:1.5em;margin-top:12px;text-align:center}
+.tag{color:var(--gold);font-size:.8rem;letter-spacing:.2em;text-transform:uppercase}
+.parch{background:linear-gradient(#f3e3b8,#e2c98a);color:#3a2a0a;border-radius:14px;padding:22px;text-align:center;box-shadow:0 0 40px #e8b84a55}
+.parch h2{margin:.2em 0;font-size:1.6rem}
+.big{font-size:1.5rem;font-weight:bold;margin:.4em 0}
+canvas{position:fixed;inset:0;pointer-events:none}
+.hide{display:none}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<main>
+<div class="tag" style="text-align:center;margin-top:10px">⚔️ Mission secrète ⚔️</div>
+<h1>La Quête Secrète</h1>
+<p class="sub">Un trésor t'attend. Réponds juste, récolte les 5 lettres, devine le mot magique.</p>
+<div class="bar" id="bar"></div>
+<div id="stage"></div>
+</main>
+<script>
+var Q=[
+{t:"Épreuve I — Le Royaume",q:"Dans quelle région de France se cache le trésor que tu cherches ?",o:["Bretagne","Vendée","Provence","Alsace"],a:1,l:"M",f:"Exact. Direction l'Ouest, là où les légendes prennent vie."},
+{t:"Épreuve II — La Nuit",q:"Quel immense spectacle nocturne, joué sous les étoiles avec des milliers d'acteurs, est le plus célèbre du lieu ?",o:["La Cinéscénie","Les Nuits Blanches","Le Grand Bal","Le Feu Sacré"],a:0,l:"A",f:"Bravo. Des milliers de bénévoles, une nuit inoubliable."},
+{t:"Épreuve III — L'Arène",q:"Où trouve-t-on gladiateurs et courses de chars ?",o:["Le Secret de la Lance","Les Vikings","Le Signe du Triomphe","Mousquetaire de Richelieu"],a:2,l:"G",f:"Ave ! Les Romains t'applaudissent."},
+{t:"Épreuve IV — Le Ciel",q:"Quel spectacle fait voler des rapaces à quelques centimètres de ta tête ?",o:["Le Bal des Oiseaux Fantômes","La Volière Royale","Les Ailes du Roi","Le Vol des Corbeaux"],a:0,l:"I",f:"Plume après plume, tu t'envoles."},
+{t:"Épreuve V — Le Cœur",q:"Dernière épreuve, la plus dure : qui t'aime le plus au monde ?",o:["Un dragon vendéen","Le chevalier noir","Mon super copain 😎","Personne, je suis une guerrière"],a:2,l:"E",f:"Réponse validée par le Conseil du Royaume. ❤️",w:["Le dragon n'a jamais offert de cadeau. Réessaie.","Il a une belle armure, mais non.","",""]}
+];
+var i=-1,got=[],stage=document.getElementById('stage'),bar=document.getElementById('bar'),name='';
+for(var k=0;k<5;k++){var s=document.createElement('div');s.className='slot';s.textContent='?';bar.appendChild(s)}
+function intro(){
+ stage.innerHTML='<div class="card"><p class="tag">Message reçu</p><p>Joyeux anniversaire, <b>aventurière</b> ! Ton chevalier a caché un cadeau. Pour l\'ouvrir, prouve ta valeur.</p><p>Comment t\'appelles-tu, noble voyageuse ?</p><input id="n" placeholder="Ton prénom" autocomplete="off"><button class="main" id="go">Commencer la quête</button></div>';
+ document.getElementById('go').onclick=function(){name=document.getElementById('n').value.trim();next()}
+}
+function next(){
+ i++; if(i>=Q.length) return final();
+ var e=Q[i];
+ stage.innerHTML='<div class="card"><p class="tag">'+e.t+'</p><p style="font-size:1.15rem">'+e.q+'</p><div id="o"></div><div class="msg" id="m"></div></div>';
+ e.o.forEach(function(x,j){var b=document.createElement('button');b.textContent=x;b.onclick=function(){pick(b,j)};document.getElementById('o').appendChild(b)});
+}
+function pick(b,j){
+ var e=Q[i],m=document.getElementById('m');
+ if(j===e.a){
+  b.className='ok';m.innerHTML=e.f+' <br><b style="color:var(--gold)">Lettre trouvée : '+e.l+'</b>';
+  got.push(e.l);var sl=bar.children[i];sl.textContent=e.l;sl.className='slot on';
+  Array.from(document.querySelectorAll('#o button')).forEach(function(x){x.disabled=true});
+  var n=document.createElement('button');n.className='main';n.textContent=i==4?'Voir le mot mystère':'Épreuve suivante';n.onclick=next;document.getElementById('o').appendChild(n);
+ } else {b.className='ko';b.disabled=true;m.textContent=(e.w&&e.w[j])||"Pas tout à fait... Essaie encore !"}
+}
+function final(){
+ stage.innerHTML='<div class="card"><p class="tag">Le sceau final</p><p>Assemble tes 5 lettres pour former le mot magique et ouvrir le coffre.</p><input id="w" placeholder="Le mot magique" autocomplete="off"><button class="main" id="ok">Ouvrir le coffre</button><div class="msg" id="m"></div></div>';
+ document.getElementById('ok').onclick=function(){
+  var v=document.getElementById('w').value.trim().toUpperCase();
+  if(v==='MAGIE'||v==='MAGIE!'){reveal()}else{document.getElementById('m').textContent='Le coffre reste fermé... remets les lettres dans l\'ordre !'}
+ }
+}
+function reveal(){
+ stage.innerHTML='<div class="card parch"><p class="tag" style="color:#7a5a10">Le coffre s\'ouvre</p><h2>Joyeux anniversaire'+(name?' '+name.replace(/</g,''):'')+' ! 🎂</h2><p>Ton cadeau est un séjour de rêve :</p><div class="big">🏰 2 jours au Puy du Fou 🏰</div><p>avec nuit à l\'<b>Hôtel du Puy du Fou</b></p><div class="big">📅 26 &amp; 27 décembre</div><p>Magie de Noël, spectacles, et moi à tes côtés.</p><p><i>Prépare ta valise, ma chevalière. ❤️</i></p></div>';
+ boom();
+}
+var cv=document.getElementById('c'),cx=cv.getContext('2d'),P=[];
+function boom(){
+ cv.width=innerWidth;cv.height=innerHeight;
+ for(var n=0;n<160;n++)P.push({x:cv.width/2,y:cv.height/3,vx:(Math.random()-.5)*14,vy:Math.random()*-12-2,c:['#e8b84a','#fff','#ff6b6b','#8b5cf6'][n%4],s:Math.random()*6+3});
+ (function f(){cx.clearRect(0,0,cv.width,cv.height);P.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.vy+=.25;cx.fillStyle=p.c;cx.fillRect(p.x,p.y,p.s,p.s)});P=P.filter(function(p){return p.y<cv.height});if(P.length)requestAnimationFrame(f)})();
+}
+intro();
+</script>
+</body>
+</html>
