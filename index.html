@@ -5,44 +5,67 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>La Quête Secrète</title>
 <style>
-:root{--bg:#0d0b14;--card:#1a1526;--gold:#e8b84a;--txt:#f4efe6;--mut:#9a92ad;--ok:#5fd38d;--ko:#ff6b6b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#0a0812;--card:#1a1526cc;--gold:#e8b84a;--txt:#f4efe6;--mut:#a79fbd;--ok:#5fd38d;--ko:#ff6b6b;box-sizing:border-box}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(circle at 50% 0,#2a1d4a,var(--bg) 60%);color:var(--txt);font-family:Georgia,'Times New Roman',serif;min-height:100vh;display:flex;justify-content:center}
-main{width:100%;max-width:480px;padding:24px 18px 40px}
-h1{font-size:2rem;text-align:center;color:var(--gold);margin:8px 0;letter-spacing:.04em}
-p{line-height:1.5}
+html,body{margin:0;min-height:100%}
+body{background:radial-gradient(ellipse at 50% -10%,#3a2566 0,#150f26 45%,var(--bg) 100%) fixed;color:var(--txt);font-family:Georgia,'Times New Roman',serif;overflow-x:hidden;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+#bg{z-index:0}#fx{z-index:9}
+main{position:relative;z-index:2;max-width:480px;margin:0 auto;padding:22px 18px 60px}
+.tag{color:var(--gold);font-size:.78rem;letter-spacing:.25em;text-transform:uppercase;text-align:center}
+h1{font-size:2.3rem;text-align:center;margin:8px 0;letter-spacing:.05em;background:linear-gradient(90deg,#b8862a,#ffe9a3,#b8862a);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 4s linear infinite,glow 3s ease-in-out infinite}
+@keyframes shine{to{background-position:200% center}}
+@keyframes glow{50%{filter:drop-shadow(0 0 14px #e8b84a99)}}
+p{line-height:1.55}
 .sub{text-align:center;color:var(--mut)}
-.card{background:var(--card);border:1px solid #3b2f5c;border-radius:18px;padding:22px;margin-top:22px;box-shadow:0 10px 40px #0008;animation:up .5s}
-@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.card{background:var(--card);backdrop-filter:blur(8px);border:1px solid #4a3d70;border-radius:20px;padding:22px;margin-top:22px;box-shadow:0 14px 50px #000a,0 0 30px #e8b84a14;animation:up .6s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes up{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:none}}
+.shake{animation:shk .4s}
+@keyframes shk{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 button,input{font:inherit;width:100%;border-radius:12px;padding:14px;margin-top:10px;border:1px solid #4a3d70;background:#241c38;color:var(--txt);text-align:left}
 button{cursor:pointer;transition:.2s}
-button:hover{border-color:var(--gold);transform:translateX(3px)}
-button.main{background:var(--gold);color:#1a1200;text-align:center;font-weight:bold;border:0}
+button:hover:not(:disabled){border-color:var(--gold);transform:translateX(4px);box-shadow:0 0 14px #e8b84a44}
+button.main{background:linear-gradient(90deg,#e8b84a,#ffd97a);color:#1a1200;text-align:center;font-weight:bold;border:0;animation:pulse 1.8s infinite}
+@keyframes pulse{50%{box-shadow:0 0 22px #e8b84a99}}
 button.ok{background:#173a28;border-color:var(--ok)}
 button.ko{background:#3d1c22;border-color:var(--ko)}
 .bar{display:flex;gap:8px;justify-content:center;margin-top:18px}
-.slot{width:46px;height:56px;border:2px dashed #4a3d70;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;color:var(--gold)}
-.slot.on{border:2px solid var(--gold);background:#2c2140;animation:pop .5s}
-@keyframes pop{0%{transform:scale(.5) rotate(-10deg)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.slot{width:48px;height:58px;border:2px dashed #4a3d70;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:var(--gold)}
+.slot.on{border:2px solid var(--gold);background:#2c2140;box-shadow:0 0 18px #e8b84a88;animation:pop .6s}
+@keyframes pop{0%{transform:scale(.3) rotate(-25deg)}70%{transform:scale(1.3) rotate(5deg)}100%{transform:scale(1)}}
 .msg{min-height:1.5em;margin-top:12px;text-align:center}
-.tag{color:var(--gold);font-size:.8rem;letter-spacing:.2em;text-transform:uppercase}
-.parch{background:linear-gradient(#f3e3b8,#e2c98a);color:#3a2a0a;border-radius:14px;padding:22px;text-align:center;box-shadow:0 0 40px #e8b84a55}
-.parch h2{margin:.2em 0;font-size:1.6rem}
+#snd{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:20;width:44px;height:44px;border-radius:50%;padding:0;text-align:center;margin:0;background:#241c38cc}
+.chest{text-align:center;font-size:6rem;animation:chest 0.5s infinite;filter:drop-shadow(0 0 25px #e8b84a)}
+@keyframes chest{25%{transform:rotate(-8deg) scale(1.05)}75%{transform:rotate(8deg) scale(1.05)}}
+.flash{position:fixed;inset:0;background:#fff;z-index:30;animation:fl 1.4s forwards;pointer-events:none}
+@keyframes fl{0%{opacity:1}100%{opacity:0}}
+.parch{background:linear-gradient(#f5e6bd,#e2c98a);color:#3a2a0a;border:0;box-shadow:0 0 60px #e8b84a88;text-align:center}
+.parch>*{opacity:0;animation:fade .8s forwards}
+.parch>*:nth-child(1){animation-delay:.2s}.parch>*:nth-child(2){animation-delay:.9s}.parch>*:nth-child(3){animation-delay:1.6s}.parch>*:nth-child(4){animation-delay:2.3s}.parch>*:nth-child(5){animation-delay:3s}.parch>*:nth-child(6){animation-delay:3.7s}.parch>*:nth-child(7){animation-delay:4.4s}
+@keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.parch h2{font-size:1.7rem;margin:.2em 0}
 .big{font-size:1.5rem;font-weight:bold;margin:.4em 0}
-canvas{position:fixed;inset:0;pointer-events:none}
-.hide{display:none}
+.vid{margin-top:26px;animation:up 1s}
+.frame{position:relative;padding-top:56.25%;border-radius:16px;overflow:hidden;border:2px solid var(--gold);box-shadow:0 0 40px #e8b84a66}
+.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vid a{display:block;text-align:center;color:var(--gold);margin-top:12px}
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
+<canvas id="bg"></canvas><canvas id="fx"></canvas>
+<button id="snd" title="Son">🔊</button>
 <main>
-<div class="tag" style="text-align:center;margin-top:10px">⚔️ Mission secrète ⚔️</div>
+<div class="tag" style="margin-top:10px">⚔ Mission secrète ⚔</div>
 <h1>La Quête Secrète</h1>
 <p class="sub">Un trésor t'attend. Réponds juste, récolte les 5 lettres, devine le mot magique.</p>
 <div class="bar" id="bar"></div>
 <div id="stage"></div>
 </main>
 <script>
+/* ====== RÉGLAGES ====== */
+var VIDEO_ID='WaeQzM7pj28'; // vidéo YouTube du Puy du Fou (remplace l'ID pour changer de vidéo)
+var MOT='MAGIE';
+/* ====== QUESTIONS ====== */
 var Q=[
 {t:"Épreuve I — Le Royaume",q:"Dans quelle région de France se cache le trésor que tu cherches ?",o:["Bretagne","Vendée","Provence","Alsace"],a:1,l:"M",f:"Exact. Direction l'Ouest, là où les légendes prennent vie."},
 {t:"Épreuve II — La Nuit",q:"Quel immense spectacle nocturne, joué sous les étoiles avec des milliers d'acteurs, est le plus célèbre du lieu ?",o:["La Cinéscénie","Les Nuits Blanches","Le Grand Bal","Le Feu Sacré"],a:0,l:"A",f:"Bravo. Des milliers de bénévoles, une nuit inoubliable."},
@@ -50,43 +73,104 @@ var Q=[
 {t:"Épreuve IV — Le Ciel",q:"Quel spectacle fait voler des rapaces à quelques centimètres de ta tête ?",o:["Le Bal des Oiseaux Fantômes","La Volière Royale","Les Ailes du Roi","Le Vol des Corbeaux"],a:0,l:"I",f:"Plume après plume, tu t'envoles."},
 {t:"Épreuve V — Le Cœur",q:"Dernière épreuve, la plus dure : qui t'aime le plus au monde ?",o:["Un dragon vendéen","Le chevalier noir","Mon super copain 😎","Personne, je suis une guerrière"],a:2,l:"E",f:"Réponse validée par le Conseil du Royaume. ❤️",w:["Le dragon n'a jamais offert de cadeau. Réessaie.","Il a une belle armure, mais non.","",""]}
 ];
-var i=-1,got=[],stage=document.getElementById('stage'),bar=document.getElementById('bar'),name='';
+var i=-1,stage=document.getElementById('stage'),bar=document.getElementById('bar'),name='';
 for(var k=0;k<5;k++){var s=document.createElement('div');s.className='slot';s.textContent='?';bar.appendChild(s)}
+
+/* ====== SON (WebAudio, aucun fichier) ====== */
+var AC=null,on=true,drone=[],mus=null,master=null;
+function audioStart(){
+ if(AC)return;
+ try{AC=new (window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=.9;master.connect(AC.destination);
+ [110,164.8,220].forEach(function(f,n){var o=AC.createOscillator(),g=AC.createGain();o.type=n==2?'triangle':'sine';o.frequency.value=f;g.gain.value=.035;o.connect(g);g.connect(master);o.start();drone.push(g)});
+ var sc=[440,523.3,587.3,659.3,784,880];
+ mus=setInterval(function(){if(on&&Math.random()<.75)tone(sc[Math.floor(Math.random()*sc.length)],.05,2.2,'sine')},900);
+ }catch(e){}
+}
+function tone(f,v,d,ty,delay){
+ if(!AC||!on)return;var t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();
+ o.type=ty||'sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+ o.connect(g);g.connect(master);o.start(t);o.stop(t+d+.05);
+}
+function sOk(){[523.3,659.3,784,1046.5].forEach(function(f,n){tone(f,.12,.6,'triangle',n*.09)})}
+function sKo(){tone(140,.15,.35,'sawtooth');tone(110,.15,.4,'sawtooth',.12)}
+function sWin(){[523.3,659.3,784,1046.5,1318.5,1568].forEach(function(f,n){tone(f,.14,1.4,'triangle',n*.12)})}
+function fadeOut(){on=false;drone.forEach(function(g){g.gain.setTargetAtTime(0,AC.currentTime,.8)})}
+var snd=document.getElementById('snd');
+snd.onclick=function(){audioStart();on=!on;snd.textContent=on?'🔊':'🔇';if(drone.length)drone.forEach(function(g){g.gain.setTargetAtTime(on?.035:0,AC.currentTime,.2)})};
+
+/* ====== AMBIANCE VISUELLE : braises + neige ====== */
+var bg=document.getElementById('bg'),bx=bg.getContext('2d'),E=[];
+function rs(){bg.width=innerWidth;bg.height=innerHeight;fx.width=innerWidth;fx.height=innerHeight}
+var fx=document.getElementById('fx'),fc=fx.getContext('2d');rs();addEventListener('resize',rs);
+function mkE(init){var sn=Math.random()<.45;return{x:Math.random()*bg.width,y:init?Math.random()*bg.height:(sn?-10:bg.height+10),r:sn?Math.random()*2.6+1:Math.random()*2+.6,v:sn?Math.random()*.7+.3:-(Math.random()*.9+.3),sn:sn,ph:Math.random()*6.28,a:Math.random()*.6+.3}}
+for(var n=0;n<90;n++)E.push(mkE(true));
+(function loop(t){
+ bx.clearRect(0,0,bg.width,bg.height);
+ E.forEach(function(p,n){p.y+=p.v;p.ph+=.02;p.x+=Math.sin(p.ph)*.5;
+  bx.beginPath();bx.arc(p.x,p.y,p.r,0,6.28);
+  bx.fillStyle=p.sn?'rgba(255,255,255,'+p.a+')':'rgba(255,'+(140+Math.floor(Math.random()*80))+',60,'+p.a+')';
+  if(!p.sn){bx.shadowColor='#ff9a3c';bx.shadowBlur=8}else bx.shadowBlur=0;
+  bx.fill();
+  if(p.y<-20||p.y>bg.height+20)E[n]=mkE(false)});
+ requestAnimationFrame(loop)})();
+
+/* ====== FEUX D'ARTIFICE ====== */
+var F=[],fw=false;
+function burst(x,y){var c='hsl('+Math.floor(Math.random()*360)+',100%,65%)';for(var n=0;n<70;n++){var a=Math.random()*6.28,s=Math.random()*6+1.5;F.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:1,c:c})}}
+function fireworks(sec){
+ fw=true;var end=Date.now()+sec*1000;
+ var iv=sec>0?setInterval(function(){burst(Math.random()*fx.width,Math.random()*fx.height*.55+30);tone(200+Math.random()*300,.05,.5,'square');if(Date.now()>end)clearInterval(iv)},450):0;
+ (function f(){fc.clearRect(0,0,fx.width,fx.height);
+  F.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.vy+=.07;p.vx*=.985;p.l-=.011;fc.globalAlpha=Math.max(p.l,0);fc.fillStyle=p.c;fc.fillRect(p.x,p.y,3,3)});
+  fc.globalAlpha=1;F=F.filter(function(p){return p.l>0});
+  if(F.length||Date.now()<end+1500)requestAnimationFrame(f)})();
+}
+
+/* ====== JEU ====== */
 function intro(){
- stage.innerHTML='<div class="card"><p class="tag">Message reçu</p><p>Joyeux anniversaire, <b>aventurière</b> ! Ton chevalier a caché un cadeau. Pour l\'ouvrir, prouve ta valeur.</p><p>Comment t\'appelles-tu, noble voyageuse ?</p><input id="n" placeholder="Ton prénom" autocomplete="off"><button class="main" id="go">Commencer la quête</button></div>';
- document.getElementById('go').onclick=function(){name=document.getElementById('n').value.trim();next()}
+ stage.innerHTML='<div class="card"><p class="tag">Message reçu</p><p>Joyeux anniversaire, <b>aventurière</b> ! Ton chevalier a caché un cadeau. Pour l\'ouvrir, prouve ta valeur.</p><p>Comment t\'appelles-tu, noble voyageuse ?</p><input id="n" placeholder="Ton prénom" autocomplete="off"><button class="main" id="go">Entrer dans le royaume 🔊</button></div>';
+ document.getElementById('go').onclick=function(){name=document.getElementById('n').value.trim();audioStart();on=true;snd.textContent='🔊';sOk();next()}
 }
 function next(){
- i++; if(i>=Q.length) return final();
+ i++;if(i>=Q.length)return final();
  var e=Q[i];
- stage.innerHTML='<div class="card"><p class="tag">'+e.t+'</p><p style="font-size:1.15rem">'+e.q+'</p><div id="o"></div><div class="msg" id="m"></div></div>';
+ stage.innerHTML='<div class="card" id="cd"><p class="tag">'+e.t+'</p><p style="font-size:1.15rem">'+e.q+'</p><div id="o"></div><div class="msg" id="m"></div></div>';
  e.o.forEach(function(x,j){var b=document.createElement('button');b.textContent=x;b.onclick=function(){pick(b,j)};document.getElementById('o').appendChild(b)});
 }
 function pick(b,j){
- var e=Q[i],m=document.getElementById('m');
+ var e=Q[i],m=document.getElementById('m'),cd=document.getElementById('cd');
  if(j===e.a){
-  b.className='ok';m.innerHTML=e.f+' <br><b style="color:var(--gold)">Lettre trouvée : '+e.l+'</b>';
-  got.push(e.l);var sl=bar.children[i];sl.textContent=e.l;sl.className='slot on';
-  Array.from(document.querySelectorAll('#o button')).forEach(function(x){x.disabled=true});
+  sOk();b.className='ok';m.innerHTML=e.f+' <br><b style="color:var(--gold)">Lettre trouvée : '+e.l+'</b>';
+  var sl=bar.children[i];sl.textContent=e.l;sl.className='slot on';
+  var r=sl.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);fireworks(0);
+  Array.prototype.forEach.call(document.querySelectorAll('#o button'),function(x){x.disabled=true});
   var n=document.createElement('button');n.className='main';n.textContent=i==4?'Voir le mot mystère':'Épreuve suivante';n.onclick=next;document.getElementById('o').appendChild(n);
- } else {b.className='ko';b.disabled=true;m.textContent=(e.w&&e.w[j])||"Pas tout à fait... Essaie encore !"}
+ }else{sKo();b.className='ko';b.disabled=true;m.textContent=(e.w&&e.w[j])||"Pas tout à fait... Essaie encore !";cd.classList.remove('shake');void cd.offsetWidth;cd.classList.add('shake')}
 }
 function final(){
  stage.innerHTML='<div class="card"><p class="tag">Le sceau final</p><p>Assemble tes 5 lettres pour former le mot magique et ouvrir le coffre.</p><input id="w" placeholder="Le mot magique" autocomplete="off"><button class="main" id="ok">Ouvrir le coffre</button><div class="msg" id="m"></div></div>';
  document.getElementById('ok').onclick=function(){
   var v=document.getElementById('w').value.trim().toUpperCase();
-  if(v==='MAGIE'||v==='MAGIE!'){reveal()}else{document.getElementById('m').textContent='Le coffre reste fermé... remets les lettres dans l\'ordre !'}
+  if(v===MOT){sequence()}else{sKo();document.getElementById('m').textContent="Le coffre reste fermé... remets les lettres dans l'ordre !"}
  }
 }
-function reveal(){
- stage.innerHTML='<div class="card parch"><p class="tag" style="color:#7a5a10">Le coffre s\'ouvre</p><h2>Joyeux anniversaire'+(name?' '+name.replace(/</g,''):'')+' ! 🎂</h2><p>Ton cadeau est un séjour de rêve :</p><div class="big">🏰 2 jours au Puy du Fou 🏰</div><p>avec nuit à l\'<b>Hôtel du Puy du Fou</b></p><div class="big">📅 26 &amp; 27 décembre</div><p>Magie de Noël, spectacles, et moi à tes côtés.</p><p><i>Prépare ta valise, ma chevalière. ❤️</i></p></div>';
- boom();
+function sequence(){
+ stage.innerHTML='<div class="card" style="text-align:center"><div class="chest">🎁</div><p class="tag">Le sceau se brise...</p></div>';
+ [130,160,190,230,290,360].forEach(function(f,n){tone(f,.15,.5,'sawtooth',n*.35)});
+ setTimeout(function(){
+  var fl=document.createElement('div');fl.className='flash';document.body.appendChild(fl);setTimeout(function(){fl.remove()},1500);
+  sWin();fireworks(9);reveal();
+ },2400);
 }
-var cv=document.getElementById('c'),cx=cv.getContext('2d'),P=[];
-function boom(){
- cv.width=innerWidth;cv.height=innerHeight;
- for(var n=0;n<160;n++)P.push({x:cv.width/2,y:cv.height/3,vx:(Math.random()-.5)*14,vy:Math.random()*-12-2,c:['#e8b84a','#fff','#ff6b6b','#8b5cf6'][n%4],s:Math.random()*6+3});
- (function f(){cx.clearRect(0,0,cv.width,cv.height);P.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.vy+=.25;cx.fillStyle=p.c;cx.fillRect(p.x,p.y,p.s,p.s)});P=P.filter(function(p){return p.y<cv.height});if(P.length)requestAnimationFrame(f)})();
+function reveal(){
+ var nm=name?' '+name.replace(/[<>&]/g,''):'';
+ stage.innerHTML='<div class="card parch"><p class="tag" style="color:#7a5a10">Le coffre s\'ouvre</p><h2>Joyeux anniversaire'+nm+' ! 🎂</h2><p>Ton cadeau est un séjour de rêve :</p><div class="big">🏰 2 jours au Puy du Fou 🏰</div><p>avec nuit à l\'<b>Hôtel du Puy du Fou</b><br><span class="big">📅 26 &amp; 27 décembre</span></p><p><i>Magie de Noël, spectacles, et moi à tes côtés. Prépare ta valise, ma chevalière. ❤️</i></p></div>';
+ setTimeout(function(){
+  fadeOut();
+  var v=document.createElement('div');v.className='vid';
+  v.innerHTML='<p class="tag" style="margin-bottom:12px">Voici ce qui t\'attend...</p><div class="frame"><iframe src="https://www.youtube.com/embed/'+VIDEO_ID+'?autoplay=1&mute=1&rel=0&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Puy du Fou"></iframe></div><a href="https://www.youtube.com/watch?v='+VIDEO_ID+'" target="_blank" rel="noopener noreferrer">▶ Ouvrir la vidéo si elle ne s'affiche pas</a>';
+  stage.appendChild(v);v.scrollIntoView({behavior:'smooth',block:'center'});
+ },6500);
 }
 intro();
 </script>
