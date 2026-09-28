@@ -168,7 +168,7 @@ function reveal(){
  setTimeout(function(){
   fadeOut();
   var v=document.createElement('div');v.className='vid';
-  v.innerHTML='<p class="tag" style="margin-bottom:12px">Voici ce qui t\'attend...</p><div class="frame"><iframe src="https://www.youtube.com/embed/'+VIDEO_ID+'?autoplay=1&mute=1&rel=0&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Puy du Fou"></iframe></div><a href="https://www.youtube.com/watch?v='+VIDEO_ID+'" target="_blank" rel="noopener noreferrer">▶ Ouvrir la vidéo si elle ne s'affiche pas</a>';
+  v.innerHTML='<p class="tag" style="margin-bottom:12px">Voici ce qui t\'attend...</p><div class="frame"><iframe src="https://www.youtube-nocookie.com/embed/'+VIDEO_ID+'?autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="Puy du Fou"></iframe></div><a href="https://www.youtube.com/watch?v='+VIDEO_ID+'" target="_blank" rel="noopener">▶ Si la vidéo ne se lance pas, clique ici</a>';
   stage.appendChild(v);v.scrollIntoView({behavior:'smooth',block:'center'});
  },6500);
 }
